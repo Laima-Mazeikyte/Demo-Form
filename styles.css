@@ -10,6 +10,9 @@
 /* Import OpenDyslexic font */
 @import url('https://fonts.cdnfonts.com/css/opendyslexic');
 
+/* Import Special Gothic Expanded One for titles */
+@import url('https://fonts.googleapis.com/css2?family=Special+Gothic+Expanded+One&display=swap');
+
 /* CSS Custom Properties */
 :root {
   --color-dark-green: #011400;
@@ -136,8 +139,9 @@ header {
 }
 
 header h1 {
+  font-family: 'Special Gothic Expanded One', sans-serif;
   font-size: clamp(1.25rem, 3vw, 2rem);
-  font-weight: 700;
+  font-weight: 400;
   color: var(--color-white);
 }
 
@@ -233,8 +237,9 @@ main {
 
 /* Card Name */
 .card-name {
+  font-family: 'Special Gothic Expanded One', sans-serif;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--color-white);
   margin-bottom: 0;
 }
@@ -476,8 +481,9 @@ body:has(.form-page:not([hidden])) {
 }
 
 .form-page-header h2 {
+  font-family: 'Special Gothic Expanded One', sans-serif;
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--color-white);
   flex: 1;
 }
@@ -714,7 +720,9 @@ body:has(.form-page:not([hidden])) {
 }
 
 .success-view h2 {
+  font-family: 'Special Gothic Expanded One', sans-serif;
   font-size: 1.5rem;
+  font-weight: 400;
   color: var(--color-white);
 }
 
@@ -885,7 +893,8 @@ footer p {
   header {
     padding: var(--spacing-sm) var(--spacing-sm);
     flex-direction: column;
-    gap: var(--spacing-sm);
+    align-items: flex-start;
+    gap: var(--spacing-md);
   }
   
   header h1 {
@@ -894,7 +903,8 @@ footer p {
   
   .subtitle {
     font-size: 0.7rem;
-    text-align: center;
+    text-align: left;
+    margin-top: var(--spacing-xs);
   }
   
   .refresh-btn,
@@ -903,6 +913,8 @@ footer p {
     transform: none;
     font-size: 0.75rem;
     padding: var(--spacing-xs) var(--spacing-sm);
+    align-self: flex-start;
+    margin-top: var(--spacing-xs);
   }
   
   .refresh-btn:hover,
@@ -993,14 +1005,26 @@ footer p {
   }
   
   footer {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: var(--spacing-sm);
     font-size: 0.7rem;
-    gap: var(--spacing-xs);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+  
+  footer p {
+    order: 1;
+    text-align: left;
+    margin-top: var(--spacing-xs);
   }
   
   .footer-link {
     font-size: 0.65rem;
     padding: 2px var(--spacing-xs);
+  }
+  
+  .footer-link--right {
+    margin-left: 0;
   }
 }
 

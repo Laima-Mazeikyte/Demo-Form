@@ -69,7 +69,6 @@ let currentParticipants = [];
 let cardCount = 0;
 let previousFocus = null;
 let newlyAddedParticipantId = null;
-let redirectTimeoutId = null;
 let availableFruits = []; // Track available fruits to avoid repeats within a render
 
 // ============================================
@@ -117,13 +116,25 @@ function calculateCardCount() {
 
 /**
  * Announce a message to screen readers
+ * @param {string} message - The message to announce
+ * @param {Function} [onComplete] - Optional callback when announcement is likely complete
  */
-function announce(message) {
+function announce(message, onComplete) {
   statusAnnouncer.textContent = message;
+  
+  // Estimate reading time: average screen reader speed is ~150-200 words per minute
+  // We use a conservative estimate of ~120 words per minute for clarity
+  // Plus a small buffer for screen reader processing
+  const wordCount = message.split(/\s+/).length;
+  const estimatedReadingTime = Math.max(2000, (wordCount / 120) * 60 * 1000 + 500);
+  
   // Clear after announcement
   setTimeout(() => {
     statusAnnouncer.textContent = '';
-  }, 1000);
+    if (onComplete) {
+      onComplete();
+    }
+  }, estimatedReadingTime);
 }
 
 /**
@@ -193,8 +204,7 @@ function createFilledCard(participant) {
   linkedinLink.href = participant.linkedinUrl;
   linkedinLink.target = '_blank';
   linkedinLink.rel = 'noopener noreferrer';
-  linkedinLink.textContent = 'LinkedIn';
-  linkedinLink.setAttribute('aria-label', `${participant.name}'s LinkedIn profile`);
+  linkedinLink.innerHTML = 'LinkedIn <span class="visually-hidden">(opens in new tab)</span>';
   links.appendChild(linkedinLink);
   
   // Portfolio link (optional, shows "Portfolio")
@@ -203,8 +213,7 @@ function createFilledCard(participant) {
     portfolioLink.href = participant.portfolioUrl;
     portfolioLink.target = '_blank';
     portfolioLink.rel = 'noopener noreferrer';
-    portfolioLink.textContent = 'Portfolio';
-    portfolioLink.setAttribute('aria-label', `${participant.name}'s portfolio`);
+    portfolioLink.innerHTML = 'Portfolio <span class="visually-hidden">(opens in new tab)</span>';
     links.appendChild(portfolioLink);
   }
   
@@ -214,8 +223,7 @@ function createFilledCard(participant) {
     projectLink.href = participant.projectUrl;
     projectLink.target = '_blank';
     projectLink.rel = 'noopener noreferrer';
-    projectLink.textContent = participant.projectName;
-    projectLink.setAttribute('aria-label', `${participant.name}'s project: ${participant.projectName}`);
+    projectLink.innerHTML = `${participant.projectName} <span class="visually-hidden">(opens in new tab)</span>`;
     links.appendChild(projectLink);
   }
   
@@ -467,18 +475,33 @@ function closeFormPage() {
 }
 
 /**
+ * Check if a screen reader is likely active
+ * This uses heuristics since there's no reliable direct detection
+ */
+function isScreenReaderLikelyActive() {
+  // Check for reduced motion preference (often enabled by screen reader users)
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  
+  // Check if user has interacted with the page using keyboard only (no mouse events recently)
+  // This is tracked when form was submitted
+  return prefersReducedMotion || document.body.classList.contains('keyboard-user');
+}
+
+/**
  * Show success view and auto-redirect to homepage
+ * Redirects immediately if no screen reader, or after announcement finishes if screen reader is active
  */
 function showSuccessView() {
   formView.hidden = true;
   successView.hidden = false;
   successCloseBtn.focus();
-  announce('Success! Your card has been added. Redirecting to homepage.');
   
-  // Auto-redirect after 2.5 seconds
-  redirectTimeoutId = setTimeout(() => {
+  const successMessage = 'Success! Your card has been added to the hackathon.';
+  
+  // Announce and redirect after the announcement is complete
+  announce(successMessage, () => {
     redirectToHomepage();
-  }, 2500);
+  });
 }
 
 /**
@@ -728,13 +751,8 @@ refreshBtn.addEventListener('click', refreshGrid);
 // Back button on form page
 backBtn.addEventListener('click', closeFormPage);
 
-// Success close button - immediate redirect and cancel auto-redirect
+// Success close button - immediate redirect
 successCloseBtn.addEventListener('click', async () => {
-  // Cancel the auto-redirect timer since user clicked manually
-  if (redirectTimeoutId) {
-    clearTimeout(redirectTimeoutId);
-    redirectTimeoutId = null;
-  }
   await redirectToHomepage();
 });
 

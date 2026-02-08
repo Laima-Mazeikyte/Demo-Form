@@ -67,7 +67,7 @@ function createProjectItem(project) {
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.className = 'project-link';
-  link.textContent = project.name;
+  link.innerHTML = `${project.name} <span class="visually-hidden">(opens in new tab)</span>`;
   
   li.appendChild(link);
   return li;

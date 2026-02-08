@@ -51,7 +51,6 @@ const submitBtn = document.getElementById('submit-btn');
 
 // State
 let previousFocus = null;
-let redirectTimeoutId = null;
 
 // Track available fruits to avoid repeats within a render
 let availableFruits = [];
@@ -89,12 +88,25 @@ function getRandomFruitAvatar() {
 
 /**
  * Announce a message to screen readers
+ * @param {string} message - The message to announce
+ * @param {Function} [onComplete] - Optional callback when announcement is likely complete
  */
-function announce(message) {
+function announce(message, onComplete) {
   statusAnnouncer.textContent = message;
+  
+  // Estimate reading time: average screen reader speed is ~150-200 words per minute
+  // We use a conservative estimate of ~120 words per minute for clarity
+  // Plus a small buffer for screen reader processing
+  const wordCount = message.split(/\s+/).length;
+  const estimatedReadingTime = Math.max(2000, (wordCount / 120) * 60 * 1000 + 500);
+  
+  // Clear after announcement
   setTimeout(() => {
     statusAnnouncer.textContent = '';
-  }, 1000);
+    if (onComplete) {
+      onComplete();
+    }
+  }, estimatedReadingTime);
 }
 
 /**
@@ -152,8 +164,7 @@ function createFilledCard(participant) {
   linkedinLink.href = participant.linkedinUrl;
   linkedinLink.target = '_blank';
   linkedinLink.rel = 'noopener noreferrer';
-  linkedinLink.textContent = 'LinkedIn';
-  linkedinLink.setAttribute('aria-label', `${participant.name}'s LinkedIn profile`);
+  linkedinLink.innerHTML = 'LinkedIn <span class="visually-hidden">(opens in new tab)</span>';
   links.appendChild(linkedinLink);
   
   // Portfolio link (optional)
@@ -162,8 +173,7 @@ function createFilledCard(participant) {
     portfolioLink.href = participant.portfolioUrl;
     portfolioLink.target = '_blank';
     portfolioLink.rel = 'noopener noreferrer';
-    portfolioLink.textContent = 'Portfolio';
-    portfolioLink.setAttribute('aria-label', `${participant.name}'s portfolio`);
+    portfolioLink.innerHTML = 'Portfolio <span class="visually-hidden">(opens in new tab)</span>';
     links.appendChild(portfolioLink);
   }
   
@@ -173,8 +183,7 @@ function createFilledCard(participant) {
     projectLink.href = participant.projectUrl;
     projectLink.target = '_blank';
     projectLink.rel = 'noopener noreferrer';
-    projectLink.textContent = participant.projectName;
-    projectLink.setAttribute('aria-label', `${participant.name}'s project: ${participant.projectName}`);
+    projectLink.innerHTML = `${participant.projectName} <span class="visually-hidden">(opens in new tab)</span>`;
     links.appendChild(projectLink);
   }
   
@@ -299,17 +308,19 @@ function closeFormPage() {
 
 /**
  * Show success view and auto-redirect back to participants list
+ * Redirects after the announcement is complete
  */
 function showSuccessView() {
   formView.hidden = true;
   successView.hidden = false;
   successCloseBtn.focus();
-  announce('Success! Your card has been added. Returning to participants.');
   
-  // Auto-redirect after 2.5 seconds
-  redirectTimeoutId = setTimeout(() => {
+  const successMessage = 'Success! Your card has been added to the hackathon.';
+  
+  // Announce and redirect after the announcement is complete
+  announce(successMessage, () => {
     redirectToParticipants();
-  }, 2500);
+  });
 }
 
 /**
@@ -533,13 +544,8 @@ addYourselfBtn.addEventListener('click', openFormPage);
 // Back button on form page
 backBtn.addEventListener('click', closeFormPage);
 
-// Success close button - immediate redirect and cancel auto-redirect
+// Success close button - immediate redirect
 successCloseBtn.addEventListener('click', async () => {
-  // Cancel the auto-redirect timer since user clicked manually
-  if (redirectTimeoutId) {
-    clearTimeout(redirectTimeoutId);
-    redirectTimeoutId = null;
-  }
   await redirectToParticipants();
 });
 
