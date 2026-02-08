@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Participants - IDS Hackathon 2026</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Skip link for accessibility -->
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <header role="banner">
+    <h1>All Participants</h1>
+    <button type="button" id="add-yourself-btn" class="btn-secondary">Add yourself</button>
+  </header>
+
+  <main id="main" tabindex="-1" class="all-participants-main">
+    <!-- Participant card grid - scrollable -->
+    <div id="card-grid" class="card-grid card-grid--all" role="list" aria-label="All hackathon participants">
+      <!-- Cards will be rendered by JavaScript -->
+    </div>
+
+    <!-- Live region for status announcements -->
+    <div id="status" aria-live="polite" class="visually-hidden"></div>
+  </main>
+
+  <!-- Full screen form page -->
+  <div 
+    id="form-page" 
+    class="form-page" 
+    hidden
+  >
+    <!-- Form page header -->
+    <div class="form-page-header">
+      <button 
+        type="button" 
+        id="back-btn" 
+        class="back-btn" 
+        aria-label="Go back to participants"
+      >
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Back</span>
+      </button>
+      <h2 id="form-page-title">Add your participation card</h2>
+    </div>
+
+    <!-- Form view -->
+    <div id="form-view" class="form-view-container">
+      <form id="participant-form" novalidate>
+        <!-- Name field (required) -->
+        <div class="field">
+          <label for="name">Name <span class="required-indicator" aria-hidden="true">*</span></label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            required 
+            autocomplete="name"
+            aria-required="true"
+            aria-invalid="false"
+            aria-describedby="name-error"
+          >
+          <span id="name-error" class="error-message" hidden></span>
+        </div>
+
+        <!-- LinkedIn URL (required) -->
+        <div class="field">
+          <label for="linkedin">LinkedIn URL <span class="required-indicator" aria-hidden="true">*</span></label>
+          <span id="linkedin-hint" class="hint">Enter your full LinkedIn profile URL</span>
+          <input 
+            type="url" 
+            id="linkedin" 
+            name="linkedin" 
+            required 
+            aria-required="true"
+            aria-invalid="false"
+            aria-describedby="linkedin-hint linkedin-error"
+          >
+          <span id="linkedin-error" class="error-message" hidden></span>
+        </div>
+
+        <!-- Portfolio URL (optional) -->
+        <div class="field">
+          <label for="portfolio">Portfolio URL <span class="optional-label">Optional</span></label>
+          <input 
+            type="url" 
+            id="portfolio" 
+            name="portfolio" 
+            aria-invalid="false"
+            aria-describedby="portfolio-error"
+          >
+          <span id="portfolio-error" class="error-message" hidden></span>
+        </div>
+
+        <!-- Hackathon Project URL (optional) -->
+        <div class="field">
+          <label for="project-url">Hackathon Project URL <span class="optional-label">Optional</span></label>
+          <span id="project-url-hint" class="hint">Link to your hackathon project (if you have one)</span>
+          <input 
+            type="url" 
+            id="project-url" 
+            name="projectUrl" 
+            aria-invalid="false"
+            aria-describedby="project-url-hint project-url-error"
+          >
+          <span id="project-url-error" class="error-message" hidden></span>
+        </div>
+
+        <!-- Hackathon Project Name (optional, required if URL provided) -->
+        <div class="field" id="project-name-field">
+          <label for="project-name">Project Name <span class="optional-label">Optional</span></label>
+          <span id="project-name-hint" class="hint">Display name for your project link</span>
+          <input 
+            type="text" 
+            id="project-name" 
+            name="projectName" 
+            aria-invalid="false"
+            aria-describedby="project-name-hint project-name-error"
+          >
+          <span id="project-name-error" class="error-message" hidden></span>
+        </div>
+
+        <!-- Avatar upload (optional) -->
+        <div class="field">
+          <label for="avatar">Avatar <span class="optional-label">Optional</span></label>
+          <span id="avatar-hint" class="hint">Max 500KB. Supported: JPG, PNG, GIF, WebP</span>
+          <input 
+            type="file" 
+            id="avatar" 
+            name="avatar" 
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            aria-invalid="false"
+            aria-describedby="avatar-hint avatar-error"
+          >
+          <span id="avatar-error" class="error-message" hidden></span>
+        </div>
+
+        <!-- Submit button -->
+        <div class="form-actions">
+          <button type="submit" class="submit-btn" id="submit-btn">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Success view -->
+    <div id="success-view" class="success-view" hidden>
+      <div class="success-content">
+        <div class="success-icon" aria-hidden="true">✓</div>
+        <h2>Success!</h2>
+        <p>Your card has been added to the hackathon.</p>
+        <p id="redirect-message" class="redirect-message">Returning to participants...</p>
+        <button type="button" id="success-close-btn" class="submit-btn">
+          Back to Participants
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer role="contentinfo">
+    <a href="index.html" class="footer-link">Back to Home</a>
+    <a href="all-projects.html" class="footer-link">All Projects</a>
+    <p>IDS Hackathon 2026</p>
+    <a href="https://www.intodesignsystems.com/hackathon" class="footer-link footer-link--right" target="_blank" rel="noopener noreferrer">Into Design Systems</a>
+  </footer>
+
+  <!-- Load all participants app as module -->
+  <script type="module" src="all-participants.js"></script>
+</body>
+</html>
