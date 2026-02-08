@@ -27,17 +27,31 @@ function announce(message) {
 }
 
 /**
+ * Normalize a URL or name for comparison
+ * Removes protocol, www, trailing slashes, and lowercases
+ */
+function normalizeForComparison(str) {
+  return str
+    .toLowerCase()
+    .replace(/^https?:\/\//, '')  // Remove http:// or https://
+    .replace(/^www\./, '')         // Remove www.
+    .replace(/\/+$/, '')           // Remove trailing slashes
+    .trim();
+}
+
+/**
  * Extract unique projects from participants
- * Uses projectUrl as the unique key to avoid duplicates
+ * Uses normalized projectUrl as the unique key to avoid duplicates
  */
 function getUniqueProjects(participants) {
   const projectMap = new Map();
   
   participants.forEach(participant => {
     if (participant.projectUrl && participant.projectName) {
-      // Use projectUrl as key to deduplicate
-      if (!projectMap.has(participant.projectUrl)) {
-        projectMap.set(participant.projectUrl, {
+      // Use normalized URL as key to deduplicate (handles trailing slashes, etc.)
+      const normalizedUrl = normalizeForComparison(participant.projectUrl);
+      if (!projectMap.has(normalizedUrl)) {
+        projectMap.set(normalizedUrl, {
           url: participant.projectUrl,
           name: participant.projectName
         });
@@ -67,7 +81,26 @@ function createProjectItem(project) {
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.className = 'project-link';
-  link.innerHTML = `${project.name} <span class="visually-hidden">(opens in new tab)</span>`;
+  
+  // Check if name and URL are the same (or very similar) after normalization
+  const normalizedName = normalizeForComparison(project.name);
+  const normalizedUrl = normalizeForComparison(project.url);
+  const nameMatchesUrl = normalizedName === normalizedUrl;
+  
+  if (nameMatchesUrl) {
+    // Only show the URL once if name and URL are the same
+    link.innerHTML = `
+      <span class="project-name">${project.url}</span>
+      <span class="visually-hidden">(opens in new tab)</span>
+    `;
+  } else {
+    // Show both name and URL
+    link.innerHTML = `
+      <span class="project-name">${project.name}</span>
+      <span class="project-url">${project.url}</span>
+      <span class="visually-hidden">(opens in new tab)</span>
+    `;
+  }
   
   li.appendChild(link);
   return li;

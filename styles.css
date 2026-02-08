@@ -778,6 +778,20 @@ footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: var(--color-dark-green);
+}
+
+/* Desktop layout: fit everything in viewport (screens 700px and wider) */
+@media (min-width: 700px) {
+  body {
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  main {
+    min-height: 0;
+    overflow: hidden;
+  }
 }
 
 footer p {
@@ -1077,13 +1091,15 @@ footer p {
 
 /* Simple scrollable page - let body scroll naturally */
 body:has(.all-participants-main) {
-  height: auto;
+  height: auto !important;
   min-height: 100vh;
+  overflow: auto !important;
 }
 
 .all-participants-main {
   flex: 1 0 auto;
   overflow: visible;
+  min-height: auto;
   padding-bottom: 4rem;
 }
 
@@ -1114,13 +1130,15 @@ body:has(.all-participants-main) {
 
 /* Simple scrollable page - let body scroll naturally */
 body:has(.all-projects-main) {
-  height: auto;
+  height: auto !important;
   min-height: 100vh;
+  overflow: auto !important;
 }
 
 .all-projects-main {
   flex: 1 0 auto;
   overflow: visible;
+  min-height: auto;
   padding: var(--spacing-lg);
   padding-bottom: 4rem;
   max-width: 800px;
@@ -1155,7 +1173,9 @@ body:has(.all-projects-main) {
 }
 
 .project-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
   background-color: var(--color-dark-green-light);
   border-radius: var(--radius-md);
@@ -1165,10 +1185,29 @@ body:has(.all-projects-main) {
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
+.project-name {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.project-url {
+  color: var(--color-neon-green);
+  font-size: 0.9rem;
+  opacity: 0.8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .project-link:hover {
   background-color: var(--color-neon-green);
   color: var(--color-dark-green);
   transform: translateX(4px);
+}
+
+.project-link:hover .project-url {
+  color: var(--color-dark-green);
+  opacity: 1;
 }
 
 .project-link:focus {
@@ -1193,7 +1232,14 @@ body:has(.all-projects-main) {
   }
   
   .project-link {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: 1rem;
+  }
+  
+  .project-url {
+    font-size: 0.8rem;
   }
 }
