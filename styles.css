@@ -136,6 +136,35 @@ header {
   min-width: 0;
 }
 
+/* Header Back Link */
+.header-back-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--color-white);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 400;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+  margin-right: var(--spacing-md);
+}
+
+.header-back-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.header-back-link svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
 header h1 {
   font-size: clamp(1.25rem, 3vw, 2rem);
   font-weight: 700;
@@ -926,6 +955,17 @@ footer p {
     padding: var(--spacing-xs) var(--spacing-sm);
     align-self: flex-start;
     margin-top: var(--spacing-xs);
+  }
+  
+  .header-back-link {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.8rem;
+    margin-right: var(--spacing-sm);
+  }
+  
+  .header-back-link svg {
+    width: 16px;
+    height: 16px;
   }
   
   .refresh-btn:hover,
