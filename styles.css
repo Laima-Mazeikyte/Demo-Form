@@ -1178,11 +1178,11 @@ body:has(.all-projects-main) {
   gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
   background-color: var(--color-dark-green-light);
+  border: 2px solid transparent;
   border-radius: var(--radius-md);
-  color: var(--color-white);
   text-decoration: none;
   font-size: 1.1rem;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: border-color var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .project-name {
@@ -1200,19 +1200,17 @@ body:has(.all-projects-main) {
 }
 
 .project-link:hover {
-  background-color: var(--color-neon-green);
-  color: var(--color-dark-green);
-  transform: translateX(4px);
+  border-color: var(--color-neon-green);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(31, 237, 77, 0.15);
 }
 
-.project-link:hover .project-url {
-  color: var(--color-dark-green);
-  opacity: 1;
-}
-
-.project-link:focus {
-  outline: 2px solid var(--color-neon-green);
+.project-link:focus-visible {
+  outline: 3px solid var(--color-neon-yellow);
   outline-offset: 2px;
+  border-color: var(--color-neon-green);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(31, 237, 77, 0.25);
 }
 
 .projects-list .empty-message,
