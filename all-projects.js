@@ -1,7 +1,10 @@
 /**
  * IDS Hackathon 2026 - All Projects Page
- * Displays unique project links without duplicates
+ * Displays grouped projects by name with all their links
+ * Version: 2.0 - Grouping by project name
  */
+
+console.log('🚀 All Projects v2.0 - Grouping by project name loaded');
 
 import { fetchAllParticipants } from './db.js';
 
@@ -27,10 +30,10 @@ function announce(message) {
 }
 
 /**
- * Normalize a URL or name for comparison
+ * Normalize a URL for comparison
  * Removes protocol, www, trailing slashes, and lowercases
  */
-function normalizeForComparison(str) {
+function normalizeUrl(str) {
   return str
     .toLowerCase()
     .replace(/^https?:\/\//, '')  // Remove http:// or https://
@@ -40,29 +43,77 @@ function normalizeForComparison(str) {
 }
 
 /**
- * Extract unique projects from participants
- * Uses normalized projectUrl as the unique key to avoid duplicates
+ * Normalize a project name for comparison
+ * Only lowercases and trims whitespace
  */
-function getUniqueProjects(participants) {
-  const projectMap = new Map();
+function normalizeName(str) {
+  return str
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * Shuffle an array using Fisher-Yates algorithm
+ */
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+/**
+ * Group projects by normalized name (case-insensitive)
+ * Each group contains a title and an array of unique URLs
+ */
+function getGroupedProjects(participants) {
+  const projectGroups = new Map();
   
   participants.forEach(participant => {
     if (participant.projectUrl && participant.projectName) {
-      // Use normalized URL as key to deduplicate (handles trailing slashes, etc.)
-      const normalizedUrl = normalizeForComparison(participant.projectUrl);
-      if (!projectMap.has(normalizedUrl)) {
-        projectMap.set(normalizedUrl, {
-          url: participant.projectUrl,
-          name: participant.projectName
+      // Use normalized name as key to group projects with same title
+      const normalizedName = normalizeName(participant.projectName);
+      
+      // Debug logging
+      console.log(`Processing: "${participant.projectName}" -> normalized: "${normalizedName}"`);
+      
+      if (!projectGroups.has(normalizedName)) {
+        projectGroups.set(normalizedName, {
+          title: participant.projectName, // Keep original casing for display
+          urls: new Map() // Use Map to deduplicate URLs
         });
+        console.log(`  Created new group for: "${normalizedName}"`);
+      } else {
+        console.log(`  Adding to existing group: "${normalizedName}"`);
+      }
+      
+      // Add URL to this group (normalized URL as key to avoid duplicates)
+      const group = projectGroups.get(normalizedName);
+      const normalizedUrl = normalizeUrl(participant.projectUrl);
+      if (!group.urls.has(normalizedUrl)) {
+        group.urls.set(normalizedUrl, participant.projectUrl);
+        console.log(`    Added URL: ${participant.projectUrl}`);
+      } else {
+        console.log(`    Skipped duplicate URL: ${participant.projectUrl}`);
       }
     }
   });
   
-  // Convert map values to array and sort by project name
-  return Array.from(projectMap.values()).sort((a, b) => 
-    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-  );
+  // Log final groups
+  console.log('\nFinal grouped projects:');
+  projectGroups.forEach((group, key) => {
+    console.log(`  "${key}": ${group.urls.size} URL(s)`);
+  });
+  
+  // Convert to array format and randomize order
+  const groupsArray = Array.from(projectGroups.values()).map(group => ({
+    title: group.title,
+    urls: Array.from(group.urls.values())
+  }));
+  
+  return shuffleArray(groupsArray);
 }
 
 // ============================================
@@ -70,53 +121,56 @@ function getUniqueProjects(participants) {
 // ============================================
 
 /**
- * Create a project list item
+ * Create a project card with title and multiple links
  */
-function createProjectItem(project) {
+function createProjectCard(projectGroup) {
   const li = document.createElement('li');
-  li.className = 'project-item';
+  li.className = 'project-card';
   
-  const link = document.createElement('a');
-  link.href = project.url;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.className = 'project-link';
+  // Create title heading
+  const title = document.createElement('h2');
+  title.className = 'project-card-title';
+  title.textContent = projectGroup.title;
+  li.appendChild(title);
   
-  // Check if name and URL are the same (or very similar) after normalization
-  const normalizedName = normalizeForComparison(project.name);
-  const normalizedUrl = normalizeForComparison(project.url);
-  const nameMatchesUrl = normalizedName === normalizedUrl;
+  // Create list of links
+  const linksList = document.createElement('ul');
+  linksList.className = 'project-links-list';
+  linksList.setAttribute('aria-label', `Links for ${projectGroup.title}`);
   
-  if (nameMatchesUrl) {
-    // Only show the URL once if name and URL are the same
+  projectGroup.urls.forEach(url => {
+    const linkItem = document.createElement('li');
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.className = 'project-link';
+    
     link.innerHTML = `
-      <span class="project-name">${project.url}</span>
+      <span class="project-url">${url}</span>
       <span class="visually-hidden">(opens in new tab)</span>
     `;
-  } else {
-    // Show both name and URL
-    link.innerHTML = `
-      <span class="project-name">${project.name}</span>
-      <span class="project-url">${project.url}</span>
-      <span class="visually-hidden">(opens in new tab)</span>
-    `;
-  }
+    
+    linkItem.appendChild(link);
+    linksList.appendChild(linkItem);
+  });
   
-  li.appendChild(link);
+  li.appendChild(linksList);
   return li;
 }
 
 /**
- * Render all unique projects
+ * Render all grouped projects
  */
 async function renderAllProjects() {
   projectsList.innerHTML = '';
   
   try {
     const participants = await fetchAllParticipants();
-    const uniqueProjects = getUniqueProjects(participants);
+    const groupedProjects = getGroupedProjects(participants);
     
-    if (uniqueProjects.length === 0) {
+    if (groupedProjects.length === 0) {
       const emptyMessage = document.createElement('li');
       emptyMessage.className = 'empty-message';
       emptyMessage.textContent = 'No projects have been submitted yet.';
@@ -125,14 +179,17 @@ async function renderAllProjects() {
       return;
     }
     
-    // Render each project
-    uniqueProjects.forEach((project, index) => {
-      const item = createProjectItem(project);
-      item.style.animationDelay = `${index * 50}ms`;
-      projectsList.appendChild(item);
+    // Count total links across all groups
+    const totalLinks = groupedProjects.reduce((sum, group) => sum + group.urls.length, 0);
+    
+    // Render each project group
+    groupedProjects.forEach((projectGroup, index) => {
+      const card = createProjectCard(projectGroup);
+      card.style.animationDelay = `${index * 50}ms`;
+      projectsList.appendChild(card);
     });
     
-    announce(`Loaded ${uniqueProjects.length} projects`);
+    announce(`Loaded ${groupedProjects.length} projects with ${totalLinks} links`);
     
   } catch (error) {
     console.error('Error loading projects:', error);
