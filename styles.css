@@ -390,6 +390,66 @@ main {
   color: rgba(255, 255, 255, 0.6);
 }
 
+/* Center banner card - hackathon thumbnail image only, same borders as other cards */
+.card--banner {
+  padding: 0;
+  border: 1px solid transparent;
+  background: linear-gradient(to bottom, #041D01, #063F01);
+  transition: border-color var(--transition-normal), transform var(--transition-normal);
+}
+
+.card--banner:hover {
+  border-color: var(--color-neon-green);
+  transform: translateY(-4px);
+}
+
+.card-banner-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  text-decoration: none;
+  border-radius: inherit;
+  transition: box-shadow var(--transition-fast);
+}
+
+.card-banner-link:hover {
+  box-shadow: none;
+}
+
+/* Same focus style as other cards: neon yellow outline, 3px, 2px offset */
+.card-banner-link:focus {
+  outline: none;
+}
+
+.card-banner-link:focus-visible {
+  outline: 3px solid var(--color-neon-yellow);
+  outline-offset: 2px;
+}
+
+.card-banner-link:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.card-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Registration closed empty cards - not interactive */
+.card--registration-closed {
+  cursor: default;
+}
+
+.card--registration-closed:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background-color: transparent;
+}
+
 /* Secondary Button (used in headers) */
 .btn-secondary {
   position: absolute;

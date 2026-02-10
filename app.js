@@ -235,51 +235,59 @@ function createFilledCard(participant) {
 }
 
 /**
- * Create an empty card with add button
- * All empty cards now look the same as the featured "Your spot is waiting" style
+ * Create the center card with hackathon thumbnail image (link only, no extra content)
+ */
+function createCenterImageCard() {
+  const wrapper = document.createElement('article');
+  wrapper.className = 'card card--center card--banner';
+  wrapper.setAttribute('role', 'listitem');
+
+  const link = document.createElement('a');
+  link.href = 'https://www.intodesignsystems.com/hackathon';
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.className = 'card-banner-link';
+  link.setAttribute('aria-label', 'Visit Into Design Systems Hackathon 2026 website (opens in new tab)');
+
+  const img = document.createElement('img');
+  img.src = 'assets/thumbnail.png?v=2';
+  img.alt = '';
+  img.className = 'card-banner-img';
+  img.setAttribute('aria-hidden', 'true');
+
+  link.appendChild(img);
+  wrapper.appendChild(link);
+
+  return wrapper;
+}
+
+/**
+ * Create an empty card showing registration closed (no form link)
  */
 function createEmptyCard(isCenter = false) {
   const card = document.createElement('article');
-  card.className = `card card--empty${isCenter ? ' card--center' : ''}`;
+  card.className = `card card--empty card--registration-closed${isCenter ? ' card--center' : ''}`;
   card.setAttribute('role', 'listitem');
-  card.setAttribute('tabindex', '0');
-  card.setAttribute('aria-label', 'Add yourself to the hackathon');
-  
+  card.setAttribute('aria-label', 'Registration closed');
+
   const content = document.createElement('div');
   content.className = 'empty-content';
-  
-  // Placeholder avatar with person silhouette SVG
+
   const placeholder = document.createElement('div');
   placeholder.className = 'empty-placeholder';
   placeholder.innerHTML = `<svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
   </svg>`;
   placeholder.setAttribute('aria-hidden', 'true');
-  
+
   const text = document.createElement('p');
   text.className = 'empty-text';
-  text.textContent = 'Your spot is waiting!';
-  
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'add-btn';
-  button.textContent = 'Add Yourself';
-  
+  text.textContent = 'Registration closed';
+
   content.appendChild(placeholder);
   content.appendChild(text);
-  content.appendChild(button);
   card.appendChild(content);
-  
-  // Event listeners for opening form page
-  const openForm = () => openFormPage();
-  card.addEventListener('click', openForm);
-  card.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openForm();
-    }
-  });
-  
+
   return card;
 }
 
@@ -421,8 +429,8 @@ async function renderGrid(participantsToShow = null) {
     }
   }
   
-  // Insert the featured center card at the center position
-  const centerCard = createEmptyCard(true);
+  // Insert the center banner image (registration closed)
+  const centerCard = createCenterImageCard();
   cards.splice(centerPosition, 0, centerCard);
   
   // Add all cards to the grid with animation delays
@@ -787,12 +795,15 @@ async function init() {
     console.error('Error initializing:', error);
     announce('Error loading participants');
     
-    // Show empty grid with add prompts
+    // Show empty grid with center banner and registration-closed placeholders
     cardCount = calculateCardCount();
+    const centerPosition = Math.floor(cardCount / 2);
     for (let i = 0; i < cardCount; i++) {
-      // Last card is the featured "Add Yourself" card
-      const isLast = i === cardCount - 1;
-      cardGrid.appendChild(createEmptyCard(isLast));
+      if (i === centerPosition) {
+        cardGrid.appendChild(createCenterImageCard());
+      } else {
+        cardGrid.appendChild(createEmptyCard(false));
+      }
     }
   }
 }
